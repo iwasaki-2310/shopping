@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -20,6 +20,10 @@ jobs:
         echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
         docker tag myapp:latest ${{ secrets.DOCKER_USERNAME }}/myapp:latest
         docker push ${{ secrets.DOCKER_USERNAME }}/myapp:latest
+    
+    - name: Run Docker Compose
+      run: |
+        docker-compose up --build -d
     
     - name: Deploy to Firebase
       uses: w9jds/firebase-action@master
