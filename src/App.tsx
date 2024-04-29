@@ -10,8 +10,11 @@ function App() {
 
   return (
     <>
-    <button onClick={counterIncrement}>カウントアップ</button>
-    <p>{count}</p>
+      <button onClick={counterIncrement}>カウントアップ</button>
+      <p>{count}</p>
+      <div>
+        <p></p>
+      </div>
     </>
   )
 }

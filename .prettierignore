@@ -1,0 +1,12 @@
+# default:
+**/.git
+**/.svn
+**/.hg
+**/node_modules
+
+# Ignore artifacts:
+build
+dist
+
+# Ignore assets folder:
+src/assets/*
