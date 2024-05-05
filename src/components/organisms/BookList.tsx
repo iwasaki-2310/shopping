@@ -25,7 +25,7 @@ export const BookList: React.FC = () => {
       {books &&
         books.map(
           (book) =>
-            book.joinedUser == user?.uid && (
+            book.joinedUser.includes(user?.uid) && (
               <button key={book.id} onClick={() => navigate(book.id ? `/${book.id}` : '/')}>
                 {book.bookName}
               </button>
