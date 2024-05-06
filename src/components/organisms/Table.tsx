@@ -54,8 +54,6 @@ export const Table: React.FC = () => {
   }
   return (
     <>
-      <h1>Tableだよ！！！</h1>
-      <button onClick={() => navigate(ROUTES.top)}>トップへ移動</button>
       <button onClick={addRecord}>レコードを追加</button>
       {records.map((record, index) => (
         <>

@@ -1,38 +1,20 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { Book } from '../../types/Book'
-import { useRoute } from '../providers/RouteProviders'
-import { arrayUnion, collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore'
 import { auth, db } from '../providers/GoogleLoginUserProvider'
 import { useEffect, useState } from 'react'
-import { useToast } from '@chakra-ui/toast'
+import { InvitationButton } from '../atoms/InvitationButton'
+import { SettingButton } from '../atoms/SettingButton'
+import { ToTopButton } from '../atoms/ToTopButton'
+import { AddMonthlyBookButton } from '../atoms/AddMonthlyBookButton'
+import { AddMonthlyBookModal } from '../organisms/AddMonthlyBookModal'
 
 export const BookPage: React.FC = () => {
   const user = auth.currentUser
   const { bookId } = useParams<{ bookId: string }>()
-  const navigate = useNavigate()
-  const ROUTES = useRoute()
   const BookRef = bookId && doc(db, 'books', bookId)
   const [bookInfo, setBookInfo] = useState<Book>()
-  const [bookName, setBookName] = useState<string>('')
-
-  const toast = useToast()
-
-  const showToast = async (url: string) => {
-    try {
-      await navigator.clipboard.writeText(url)
-      console.log('URLのコピーに成功しました')
-    } catch {
-      console.error('URLのコピーに失敗しました')
-    }
-    toast({
-      title: 'Info',
-      description: '招待リンクをコピーしました！',
-      status: 'success',
-      duration: 3000,
-      position: 'top',
-      isClosable: true,
-    })
-  }
+  const [modalFlag, setModalFlag] = useState<boolean>(false)
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -52,10 +34,11 @@ export const BookPage: React.FC = () => {
   return (
     <>
       <h1>{bookInfo && bookInfo.bookName}</h1>
-      <p>{bookId}</p>
-      <button onClick={() => showToast(location.href)}>招待</button>
-      <button onClick={() => navigate(ROUTES.setting)}>設定へ移動</button>
-      <button onClick={() => navigate(ROUTES.top)}>Topに戻る</button>
+      <AddMonthlyBookButton setModalFlag={setModalFlag} />
+      <SettingButton />
+      <InvitationButton />
+      <ToTopButton />
+      <AddMonthlyBookModal modalFlag={modalFlag} setModalFlag={setModalFlag} bookId={bookId} />
     </>
   )
 }
