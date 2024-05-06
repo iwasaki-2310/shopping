@@ -67,8 +67,6 @@ export const AddMonthlyBookModal: React.FC<ModalProps> = ({ setModalFlag, modalF
       setAlertFlag(!alertFlag)
     }
   }
-  // console.log(date)
-  console.log(month)
   return (
     <>
       <Modal isOpen={modalFlag} onClose={() => setModalFlag(false)} autoFocus={false} motionPreset="slideInBottom">
@@ -83,7 +81,7 @@ export const AddMonthlyBookModal: React.FC<ModalProps> = ({ setModalFlag, modalF
 
                   <Flatpickr
                     data-enable-time
-                    value={date}
+                    value={month}
                     onChange={handleDateChange}
                     options={{
                       plugins: [new (MonthSelectPlugin as any)(monthSelectOptions)],

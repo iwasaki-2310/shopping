@@ -8,6 +8,7 @@ import { SettingButton } from '../atoms/SettingButton'
 import { ToTopButton } from '../atoms/ToTopButton'
 import { AddMonthlyBookButton } from '../atoms/AddMonthlyBookButton'
 import { AddMonthlyBookModal } from '../organisms/AddMonthlyBookModal'
+import { MonthlyList } from '../organisms/MonthlyList'
 
 export const BookPage: React.FC = () => {
   const user = auth.currentUser
@@ -39,6 +40,7 @@ export const BookPage: React.FC = () => {
       <InvitationButton />
       <ToTopButton />
       <AddMonthlyBookModal modalFlag={modalFlag} setModalFlag={setModalFlag} bookId={bookId} />
+      <MonthlyList bookId={bookId} />
     </>
   )
 }
