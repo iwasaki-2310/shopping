@@ -3,17 +3,20 @@ import './App.css'
 import { AppRouter } from './router/AppRouter'
 import { AuthProvider } from './components/providers/GoogleLoginUserProvider'
 import { RouteProviders } from './components/providers/RouteProviders'
+import { RecoilRoot } from 'recoil'
 
 function App() {
   return (
     <>
-      <AuthProvider>
-        <RouteProviders>
-          <BrowserRouter>
-            <AppRouter />
-          </BrowserRouter>
-        </RouteProviders>
-      </AuthProvider>
+      <RecoilRoot>
+        <AuthProvider>
+          <RouteProviders>
+            <BrowserRouter>
+              <AppRouter />
+            </BrowserRouter>
+          </RouteProviders>
+        </AuthProvider>
+      </RecoilRoot>
     </>
   )
 }

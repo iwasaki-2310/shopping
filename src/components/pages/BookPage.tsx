@@ -9,15 +9,24 @@ import { ToTopButton } from '../atoms/ToTopButton'
 import { AddMonthlyBookButton } from '../atoms/AddMonthlyBookButton'
 import { AddMonthlyBookModal } from '../organisms/AddMonthlyBookModal'
 import { MonthlyList } from '../organisms/MonthlyList'
+import { useRecoilState } from 'recoil'
+import { bookIdState } from '../../state/atoms/bookIdState'
 
 export const BookPage: React.FC = () => {
   const user = auth.currentUser
   const { bookId } = useParams<{ bookId: string }>()
+
+  //Recoil（bookId）
+  const [AtomBookId, setAtomBookId] = useRecoilState(bookIdState)
+
   const BookRef = bookId && doc(db, 'books', bookId)
   const [bookInfo, setBookInfo] = useState<Book>()
   const [modalFlag, setModalFlag] = useState<boolean>(false)
 
   useEffect(() => {
+    if (bookId) {
+      setAtomBookId(bookId)
+    }
     const fetchBook = async () => {
       if (BookRef) {
         try {

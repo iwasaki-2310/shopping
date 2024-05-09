@@ -1,5 +1,4 @@
 import { FormControl, FormLabel } from '@chakra-ui/form-control'
-import { Input } from '@chakra-ui/input'
 import { Stack } from '@chakra-ui/layout'
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/modal'
 import { useState } from 'react'
@@ -8,11 +7,10 @@ import Flatpickr from 'react-flatpickr'
 import MonthSelectPlugin from 'flatpickr/dist/plugins/monthSelect/index.js'
 import 'flatpickr/dist/plugins/monthSelect/style.css'
 import 'flatpickr/dist/flatpickr.min.css'
-import { collection, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore'
+import { collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore'
 import { db } from '../providers/GoogleLoginUserProvider'
 import { Button } from '@chakra-ui/react'
-import { cs } from 'date-fns/locale'
-import { Alert, AlertTitle, AlertIcon, AlertDescription } from '@chakra-ui/alert'
+import { Alert, AlertTitle, AlertIcon } from '@chakra-ui/alert'
 
 interface ModalProps {
   setModalFlag: (flag: boolean) => void
@@ -61,10 +59,14 @@ export const AddMonthlyBookModal: React.FC<ModalProps> = ({ setModalFlag, modalF
     try {
       console.log('月別アーカイブの追加に成功しました')
       await setDoc(doc(monthlyInfoRef), { month: date })
-      setAlertFlag(!alertFlag)
+      setAlertFlag(false)
+      setModalFlag(false)
+      setMonth('')
     } catch {
       console.error('月別の家計簿の登録に失敗しました')
-      setAlertFlag(!alertFlag)
+      setAlertFlag(false)
+      setModalFlag(false)
+      setMonth('')
     }
   }
   return (

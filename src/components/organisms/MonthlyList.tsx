@@ -1,6 +1,9 @@
 import { DocumentData, Timestamp, collection, doc, getDocs } from 'firebase/firestore'
 import { db } from '../providers/GoogleLoginUserProvider'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useRecoilValue } from 'recoil'
+import { bookIdState } from '../../state/atoms/bookIdState'
 
 interface MonthlyListProps {
   bookId?: string
@@ -13,9 +16,13 @@ interface MonthlyInfo {
 
 export const MonthlyList: React.FC<MonthlyListProps> = ({ bookId }) => {
   const [monthlyInfos, setMonthlyInfos] = useState<MonthlyInfo[] | undefined>()
+  const navigate = useNavigate()
+
+  //Recoil（bookId）
+  const AtomBookId = useRecoilValue(bookIdState)
   useEffect(() => {
-    const fetchMonthlyInfos = async (bookId: string | undefined) => {
-      const bookRef = bookId && doc(db, 'books', bookId)
+    const fetchMonthlyInfos = async (AtomBookId: string | undefined) => {
+      const bookRef = AtomBookId && doc(db, 'books', AtomBookId)
       const monthlyInfoRef = bookRef && collection(bookRef, 'monthlyInfo')
       const monthlyInfoQuerySnapShot = monthlyInfoRef && (await getDocs(monthlyInfoRef))
 
@@ -30,15 +37,15 @@ export const MonthlyList: React.FC<MonthlyListProps> = ({ bookId }) => {
     }
     if (bookId) {
       // bookIdが存在する場合のみfetchを実行
-      fetchMonthlyInfos(bookId)
+      fetchMonthlyInfos(AtomBookId)
     }
-  }, [bookId])
+  }, [monthlyInfos])
 
   return (
     <>
       {monthlyInfos
         ? monthlyInfos.map((info) => (
-            <p>
+            <p onClick={() => navigate('')}>
               {info.data.month instanceof Timestamp
                 ? new Date(info.data.month.seconds * 1000).toLocaleDateString()
                 : info.data.month}

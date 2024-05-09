@@ -5,6 +5,7 @@ import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOve
 import { collection, doc, setDoc } from 'firebase/firestore'
 import { useState } from 'react'
 import { auth, db } from '../providers/GoogleLoginUserProvider'
+import { Button } from '@chakra-ui/react'
 
 export const MakeNewBook: React.FC = () => {
   const user = auth.currentUser
@@ -18,6 +19,7 @@ export const MakeNewBook: React.FC = () => {
       alert('家計簿の名前を入力してください。')
       return
     }
+
     const bookRef = doc(collection(db, 'books'))
     try {
       await setDoc(bookRef, { bookName: bookName, joinedUser: user ? [user.uid] : [] })
@@ -32,7 +34,7 @@ export const MakeNewBook: React.FC = () => {
 
   return (
     <>
-      <button onClick={switchDisplayModal}>新しい家計簿を作成する</button>
+      <Button onClick={switchDisplayModal}>新しい家計簿を作成する</Button>
       {modalFlag && (
         <Modal isOpen={modalFlag} onClose={() => setModalFlag(false)} autoFocus={false} motionPreset="slideInBottom">
           <ModalOverlay>
