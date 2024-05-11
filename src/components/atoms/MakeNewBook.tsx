@@ -6,8 +6,15 @@ import { collection, doc, setDoc } from 'firebase/firestore'
 import { useState } from 'react'
 import { auth, db } from '../providers/GoogleLoginUserProvider'
 import { Button } from '@chakra-ui/react'
+import { Book } from '../../types/Book'
 
-export const MakeNewBook: React.FC = () => {
+interface BookListProps {
+  books: Book[]
+  setBooks: React.Dispatch<React.SetStateAction<Book[]>>
+}
+
+export const MakeNewBook: React.FC<BookListProps> = (props) => {
+  const { books, setBooks } = props
   const user = auth.currentUser
   const [modalFlag, setModalFlag] = useState<boolean>(false)
   const switchDisplayModal = () => setModalFlag(!modalFlag)
@@ -23,6 +30,7 @@ export const MakeNewBook: React.FC = () => {
     const bookRef = doc(collection(db, 'books'))
     try {
       await setDoc(bookRef, { bookName: bookName, joinedUser: user ? [user.uid] : [] })
+      setBooks((prevBooks) => [...prevBooks, { bookName: bookName, joinedUser: user ? [user.uid] : [] }])
       alert('家計簿が正常に作成されました。')
       setBookName('')
       setModalFlag(false)
