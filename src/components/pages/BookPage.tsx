@@ -17,16 +17,16 @@ export const BookPage: React.FC = () => {
   const { bookId } = useParams<{ bookId: string }>()
 
   //Recoil（bookId）
-  const [AtomBookId, setAtomBookId] = useRecoilState(bookIdState)
+  // const [AtomBookId, setAtomBookId] = useRecoilState(bookIdState)
 
   const BookRef = bookId && doc(db, 'books', bookId)
   const [bookInfo, setBookInfo] = useState<Book>()
   const [modalFlag, setModalFlag] = useState<boolean>(false)
 
   useEffect(() => {
-    if (bookId) {
-      setAtomBookId(bookId)
-    }
+    // if (bookId) {
+    //   setAtomBookId(bookId)
+    // }
     const fetchBook = async () => {
       if (BookRef) {
         try {

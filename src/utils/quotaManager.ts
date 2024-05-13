@@ -3,8 +3,9 @@ import { getDocs, Query } from 'firebase/firestore'
 let readCount = 0
 const dailyReadLimit = 10000
 
-export async function checkQuotaAndFetch(query: Query) {
+export async function checkQuotaAndFetch(query: Query, navigate: Function) {
   if (readCount >= dailyReadLimit) {
+    navigate('/')
     throw new Error('Daily read quota exceeded.')
   }
   // Firestoreからドキュメントを取得するクエリを実行し、結果をsnapshotに格納

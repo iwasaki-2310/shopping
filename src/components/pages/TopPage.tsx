@@ -12,18 +12,32 @@ export const TopPage: React.FC = () => {
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'books'), (snapshot) => {
-      const changes = snapshot.docChanges().map((change) => change.doc.data() as Book)
-      setBooks((prevBooks) => [...prevBooks, ...changes])
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === 'added') {
+          setBooks((prevBooks) => [...prevBooks, change.doc.data() as Book])
+        } else if (change.type === 'modified') {
+          setBooks((prevBooks) =>
+            prevBooks.map((prevBook) => (prevBook.id === change.doc.id ? change.doc.data() : prevBook)),
+          )
+        } else if (change.type === 'removed') {
+          setBooks((prevBooks) => prevBooks.filter((prevBook) => prevBook.id !== change.doc.id))
+        }
+      })
+      const newBooks = snapshot.docs.map((doc) => doc.data() as Book)
+      setBooks(newBooks)
     })
     return () => unsubscribe()
-  }, [books])
-  console.log(books)
+  }, [])
+
+  // useEffect(() => {
+  //   fetchBooks(navigate)
+  // }, [books])
   return (
     <>
       <h1>Topだよ！！！</h1>
-      <MakeNewBook books={books} setBooks={setBooks} />
+      <MakeNewBook />
 
-      <BookList books={books} setBooks={setBooks} />
+      <BookList />
     </>
   )
 }
