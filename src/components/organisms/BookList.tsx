@@ -1,6 +1,6 @@
 import { collection, doc, onSnapshot } from 'firebase/firestore'
 import { auth, db } from '../providers/GoogleLoginUserProvider'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Book } from '../../types/Book'
 import { useNavigate } from 'react-router-dom'
 import { Button, Heading } from '@chakra-ui/react'
@@ -18,9 +18,9 @@ export const BookList: React.FC = () => {
       {books &&
         books.map(
           (book) =>
-            book.joinedUser.includes(user?.uid) && (
+            book.data.joinedUser.includes(user?.uid) && (
               <Button key={book.id} onClick={() => navigate(book.id ? `/${book.id}` : '/')}>
-                {book.bookName}
+                {book.data.bookName}
               </Button>
             ),
         )}

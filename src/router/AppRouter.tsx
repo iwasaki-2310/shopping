@@ -3,6 +3,7 @@ import { LoginPage } from '../components/pages/LoginPage'
 import { PrivateRoute } from './PrivateRoute'
 import { TopPage } from '../components/pages/TopPage'
 import { BookPage } from '../components/pages/BookPage'
+import { Table } from '../components/organisms/Table'
 
 export const AppRouter: React.FC = () => {
   return (
@@ -10,7 +11,9 @@ export const AppRouter: React.FC = () => {
       <Route path="/" element={<LoginPage />} />
       <Route element={<PrivateRoute />}>
         <Route path="/top" element={<TopPage />} />
-        <Route path="/:bookId" element={<BookPage />} />
+        <Route path="/:bookId" element={<BookPage />}>
+          <Route path="/:bookId" element={<Table />} />
+        </Route>
       </Route>
     </Routes>
   )

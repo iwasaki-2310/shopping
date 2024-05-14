@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
 import { bookIdState } from '../../state/atoms/bookIdState'
+import { Button } from '@chakra-ui/react'
 
 interface MonthlyListProps {
   bookId?: string
@@ -18,11 +19,9 @@ export const MonthlyList: React.FC<MonthlyListProps> = ({ bookId }) => {
   const [monthlyInfos, setMonthlyInfos] = useState<MonthlyInfo[] | undefined>()
   const navigate = useNavigate()
 
-  //Recoil（bookId）
-  const AtomBookId = useRecoilValue(bookIdState)
   useEffect(() => {
-    const fetchMonthlyInfos = async (AtomBookId: string | undefined) => {
-      const bookRef = AtomBookId && doc(db, 'books', AtomBookId)
+    const fetchMonthlyInfos = async (bookId: string | undefined) => {
+      const bookRef = bookId && doc(db, 'books', bookId)
       const monthlyInfoRef = bookRef && collection(bookRef, 'monthlyInfo')
       const monthlyInfoQuerySnapShot = monthlyInfoRef && (await getDocs(monthlyInfoRef))
 
@@ -35,21 +34,18 @@ export const MonthlyList: React.FC<MonthlyListProps> = ({ bookId }) => {
 
       setMonthlyInfos(monthlyInfosFetched)
     }
-    if (bookId) {
-      // bookIdが存在する場合のみfetchを実行
-      fetchMonthlyInfos(AtomBookId)
-    }
-  }, [monthlyInfos])
+    fetchMonthlyInfos(bookId)
+  }, [])
 
   return (
     <>
       {monthlyInfos
         ? monthlyInfos.map((info) => (
-            <p onClick={() => navigate('')}>
+            <Button key={info.id} onClick={() => navigate('')}>
               {info.data.month instanceof Timestamp
-                ? new Date(info.data.month.seconds * 1000).toLocaleDateString()
+                ? new Date(info.data.month.seconds * 1000).toLocaleDateString().slice(0, -2)
                 : info.data.month}
-            </p>
+            </Button>
           ))
         : '月情報がありません'}
     </>
