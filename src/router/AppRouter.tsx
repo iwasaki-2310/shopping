@@ -11,9 +11,8 @@ export const AppRouter: React.FC = () => {
       <Route path="/" element={<LoginPage />} />
       <Route element={<PrivateRoute />}>
         <Route path="/top" element={<TopPage />} />
-        <Route path="/:bookId" element={<BookPage />}>
-          <Route path="/:bookId" element={<Table />} />
-        </Route>
+        <Route path="/:bookId" element={<BookPage />} />
+        <Route path="/:bookId/:monthlyId" element={<Table />} />
       </Route>
     </Routes>
   )

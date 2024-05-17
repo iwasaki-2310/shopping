@@ -2,13 +2,13 @@ import { useRecoilState } from 'recoil'
 import { MakeNewBook } from '../atoms/MakeNewBook'
 import { BookList } from '../organisms/BookList'
 import { Book } from '../../types/Book'
-import { bookIdState } from '../../state/atoms/bookIdState'
+import { booksArrayState } from '../../state/atoms/booksArrayState'
 import { useEffect } from 'react'
 import { collection, onSnapshot } from 'firebase/firestore'
 import { db } from '../providers/GoogleLoginUserProvider'
 
 export const TopPage: React.FC = () => {
-  const [books, setBooks] = useRecoilState<Book[]>(bookIdState)
+  const [books, setBooks] = useRecoilState<Book[]>(booksArrayState)
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'books'), (snapshot) => {
