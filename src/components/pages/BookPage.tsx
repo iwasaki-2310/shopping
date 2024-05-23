@@ -56,11 +56,11 @@ export const BookPage: React.FC = () => {
             monthlyInfo: bookSnap.data()?.monthlyInfo,
           })
 
-        bookId && console.log(recoilBookInfo)
+        // bookId && console.log(recoilBookInfo)
       }
     }
     fetchBook()
-  }, [])
+  }, [recoilBookInfo.monthlyInfo])
 
   return (
     <>
