@@ -1,20 +1,22 @@
-import { useState } from 'react'
+import { BrowserRouter } from 'react-router-dom'
 import './App.css'
+import { AppRouter } from './router/AppRouter'
+import { AuthProvider } from './components/providers/GoogleLoginUserProvider'
+import { RouteProviders } from './components/providers/RouteProviders'
+import { RecoilRoot } from 'recoil'
 
 function App() {
-  const [count, setCount] = useState<number>(0)
-
-  const counterIncrement = () => {
-    setCount(count + 1)
-  }
-
   return (
     <>
-      <button onClick={counterIncrement}>カウントアップ</button>
-      <p>{count}</p>
-      <div>
-        <p></p>
-      </div>
+      <RecoilRoot>
+        <AuthProvider>
+          <RouteProviders>
+            <BrowserRouter>
+              <AppRouter />
+            </BrowserRouter>
+          </RouteProviders>
+        </AuthProvider>
+      </RecoilRoot>
     </>
   )
 }
