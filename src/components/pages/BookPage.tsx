@@ -53,7 +53,9 @@ export const BookPage: React.FC = () => {
             bookId: bookId,
             bookName: bookSnap.data()?.bookName,
             joinedUser: bookSnap.data()?.joinedUser,
-            monthlyInfo: bookSnap.data()?.monthlyInfo,
+            monthlyInfo: bookSnap
+              .data()
+              ?.monthlyInfo.sort((a: MonthlyInfo, b: MonthlyInfo) => a.month.localeCompare(b.month)),
           })
 
         // bookId && console.log(recoilBookInfo)

@@ -65,33 +65,25 @@ export const Table: React.FC = () => {
       const bookRef = doc(db, 'books', bookId)
       const monthlyInfoRef = doc(bookRef, 'monthlyInfo', monthlyId)
       const monthlyInfoSnap = await getDoc(monthlyInfoRef)
-      // console.log({ bookRef, monthlyInfoRef })
 
       if (monthlyInfoSnap.exists()) {
         const timestamp = monthlyInfoSnap.data().month
         setMonthTimestamp(timestamp)
-        // console.log('月次データ取得成功', monthlyInfoSnap.data().recordsInfo)
 
         const recordsInfoRef = collection(monthlyInfoRef, 'recordsInfo')
-        // console.log('recordsInfo参照作成', recordsInfoRef)
 
         // コレクションの内容を取得してログに出力
         const recordsSnapshot = await getDocs(recordsInfoRef)
-        // console.log('recordsSnapshot:', recordsSnapshot)
-        // console.log('recordsInfoコレクションのドキメント数:', recordsSnapshot.size)
+
         recordsSnapshot.docs.forEach((doc) => {
           console.log('ドキュメントデータ:', doc.data())
         })
 
         const unsubscribe = onSnapshot(recordsInfoRef, (snapshot) => {
-          // console.log('onSnapshot開始', snapshot)
-          // console.log('snapshotのドキュメント数:', snapshot.size)
           snapshot.docChanges().forEach(
             (change) => {
-              // console.log('ドキュメント変更検出', change)
               if (change.type === 'added') {
                 setRecords((prevRecords) => [...prevRecords, change.doc.data() as Record])
-                // console.log('追加しました')
               } else if (change.type === 'modified') {
                 setRecords((prevRecords) =>
                   prevRecords.map((prevRecord) =>
@@ -122,17 +114,15 @@ export const Table: React.FC = () => {
     const fetchRecordsData = async (bookId: string) => {
       let fetchedRecords: Record[] = []
       if (bookId && monthlyId) {
-        // console.log(recoilBookInfo.bookId)
-        // console.log(monthlyId)
         const bookRef = doc(db, 'books', bookId)
-        // console.log(bookRef.path)
+
         const monthlyInfoRef = doc(bookRef, 'monthlyInfo', monthlyId)
-        // console.log(monthlyInfoRef.path)
+
         const recordsRef = collection(monthlyInfoRef, 'records')
         console.log(recordsRef.path)
         const q = query(recordsRef)
         const querySnapshot = await getDocs(q)
-        // console.log(querySnapshot)
+
         fetchedRecords = querySnapshot.docs.map((doc) => ({
           recordId: doc.id,
           date: doc.data().date,
@@ -147,8 +137,6 @@ export const Table: React.FC = () => {
     }
     fetchRecordsData(recoilBookInfo.bookId)
   }, [recoilBookInfo.bookId])
-
-  // console.log(records)
 
   // 月次タイムスタンプをローカルストレージに��新
   useEffect(() => {
@@ -170,7 +158,7 @@ export const Table: React.FC = () => {
       const bookRef = doc(db, 'books', bookId)
       if (monthlyId) {
         const monthlyInfoRef = doc(bookRef, 'monthlyInfo', monthlyId)
-        // console.log('Monthly Info Ref:', monthlyInfoRef.path)
+
         const recordsRef = collection(monthlyInfoRef, 'records')
         console.log('Records Ref:', recordsRef.path)
 
@@ -194,43 +182,32 @@ export const Table: React.FC = () => {
     }
   }
 
-  // const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>, FieldName: string) => {
-  //   setRecords((prevRecords) =>
-  //     prevRecords.map((record) => {
-  //       if (record.date.dateField === FieldName) {
-  //         // console.log(record.date.dateField)
-  //         return {
-  //           ...record,
-  //           date: { ...record.date, dateValue: e.target.value },
-  //         }
-  //       }
-  //       return record
-  //     }),
-  //   )
-  // }
+  const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>, FieldName: string) => {
+    const newdateValue = e.target.value
+    setRecords((prevRecords) =>
+      prevRecords.map((record) =>
+        record.date && record.date.dateField === FieldName
+          ? { ...record, date: { ...record.date, dateValue: newdateValue } }
+          : record,
+      ),
+    )
+  }
 
-  const onChangeDate = async (e: React.ChangeEvent<HTMLInputElement>, FieldName: string, bookId: string) => {
+  const onBlurDate = async (FieldName: string, bookId: string) => {
     const updates = await Promise.all(
       records.map(async (record) => {
-        if (record.date.dateField === FieldName) {
-          // console.log(`フィールド名：${record.date.dateField}`)
+        if (record.date && record.date.dateField === FieldName) {
           const recordId = record.recordId
-          // console.log(`レコードID：${recordId}`)
-          const dateValue = e.target.value
-          // console.log(`月次ID：${monthlyId}`)
-          // console.log(`recoilBookInfo.bookId：${recoilBookInfo.bookId}`)
+          const dateValue = record.date.dateValue
+          const dateField = record.date.dateField
           const bookRef = doc(db, 'books', bookId)
-          // console.log(`bookRef参照：${bookRef}`)
           if (monthlyId) {
             const monthlyInfoRef = doc(bookRef, 'monthlyInfo', monthlyId)
             const recordRef = doc(monthlyInfoRef, 'records', recordId)
-
             try {
               await updateDoc(recordRef, {
-                date: dateValue,
+                date: { dateField, dateValue },
               })
-              // setRecords([...records ])
-              return { ...record, date: { ...record.date, dateValue } }
             } catch (error) {
               console.error('Firestoreへのdateの更新に失敗しました', error)
             }
@@ -239,33 +216,35 @@ export const Table: React.FC = () => {
         return record
       }),
     )
-
     setRecords(updates)
   }
 
-  const onChangeStoreName = async (e: React.ChangeEvent<HTMLInputElement>, FieldName: string, bookId: string) => {
+  const onChangeStoreName = (e: React.ChangeEvent<HTMLInputElement>, FieldName: string) => {
+    const newStoreNameValue = e.target.value
+    setRecords((prevRecords) =>
+      prevRecords.map((record) =>
+        record.storeName && record.storeName.storeNameField === FieldName
+          ? { ...record, storeName: { ...record.storeName, storeNameValue: newStoreNameValue } }
+          : record,
+      ),
+    )
+  }
+
+  const onBlurStoreName = async (FieldName: string, bookId: string) => {
     const updates = await Promise.all(
       records.map(async (record) => {
-        if (record.storeName.storeNameField === FieldName) {
-          // console.log(`フィールド名：${record.storeName.storeNameField}`)
+        if (record.storeName && record.storeName.storeNameField === FieldName) {
           const recordId = record.recordId
-          // console.log(`レコードID：${recordId}`)
-          const storeNameValue = e.target.value
+          const storeNameValue = record.storeName.storeNameValue
           const storeNameField = record.storeName.storeNameField
-          // console.log(`月次ID：${monthlyId}`)
-          // console.log(`recoilBookInfo.bookId：${recoilBookInfo.bookId}`)
           const bookRef = doc(db, 'books', bookId)
-          // console.log(`bookRef参照：${bookRef}`)
           if (monthlyId) {
             const monthlyInfoRef = doc(bookRef, 'monthlyInfo', monthlyId)
             const recordRef = doc(monthlyInfoRef, 'records', recordId)
-
             try {
               await updateDoc(recordRef, {
-                storeName: { storeNameField: storeNameField, storeNameValue: storeNameValue },
+                storeName: { storeNameField, storeNameValue },
               })
-              // setRecords([...records ])
-              return { ...record, storeName: { ...record.storeName, storeNameField, storeNameValue } }
             } catch (error) {
               console.error('FirestoreへのstoreNameの更新に失敗しました', error)
             }
@@ -274,33 +253,35 @@ export const Table: React.FC = () => {
         return record
       }),
     )
-
     setRecords(updates)
   }
 
-  const onChangePrice = async (e: React.ChangeEvent<HTMLInputElement>, FieldName: string, bookId: string) => {
+  const onChangePrice = (e: React.ChangeEvent<HTMLInputElement>, FieldName: string) => {
+    const newpriceValue = parseFloat(e.target.value)
+    setRecords((prevRecords) =>
+      prevRecords.map((record) =>
+        record.price && record.price.priceField === FieldName
+          ? { ...record, price: { ...record.price, priceValue: newpriceValue } }
+          : record,
+      ),
+    )
+  }
+
+  const onBlurPrice = async (FieldName: string, bookId: string) => {
     const updates = await Promise.all(
       records.map(async (record) => {
-        if (record.price.priceField === FieldName) {
-          // console.log(`フィールド名：${record.price.priceField}`)
+        if (record.price && record.price.priceField === FieldName) {
           const recordId = record.recordId
-          // console.log(`レコードID：${recordId}`)
-          const priceValue = parseFloat(e.target.value)
+          const priceValue = record.price.priceValue
           const priceField = record.price.priceField
-          // console.log(`月次ID：${monthlyId}`)
-          // console.log(`recoilBookInfo.bookId：${recoilBookInfo.bookId}`)
           const bookRef = doc(db, 'books', bookId)
-          // console.log(`bookRef参照：${bookRef}`)
           if (monthlyId) {
             const monthlyInfoRef = doc(bookRef, 'monthlyInfo', monthlyId)
             const recordRef = doc(monthlyInfoRef, 'records', recordId)
-
             try {
               await updateDoc(recordRef, {
-                price: { priceField: priceField, priceValue: priceValue },
+                price: { priceField, priceValue },
               })
-              // setRecords([...records ])
-              return { ...record, price: { ...record.price, priceField, priceValue } }
             } catch (error) {
               console.error('Firestoreへのpriceの更新に失敗しました', error)
             }
@@ -309,33 +290,35 @@ export const Table: React.FC = () => {
         return record
       }),
     )
-
     setRecords(updates)
   }
 
-  const onChangePayment = async (e: React.ChangeEvent<HTMLSelectElement>, FieldName: string, bookId: string) => {
+  const onChangePayment = (e: React.ChangeEvent<HTMLSelectElement>, FieldName: string) => {
+    const newpaymentValue = e.target.value
+    setRecords((prevRecords) =>
+      prevRecords.map((record) =>
+        record.payment && record.payment.paymentField === FieldName
+          ? { ...record, payment: { ...record.payment, paymentValue: newpaymentValue } }
+          : record,
+      ),
+    )
+  }
+
+  const onBlurPayment = async (FieldName: string, bookId: string) => {
     const updates = await Promise.all(
       records.map(async (record) => {
-        if (record.payment.paymentField === FieldName) {
-          // console.log(`フィールド名：${record.payment.paymentField}`)
+        if (record.payment && record.payment.paymentField === FieldName) {
           const recordId = record.recordId
-          // console.log(`レコードID：${recordId}`)
-          const paymentValue = e.target.value
+          const paymentValue = record.payment.paymentValue
           const paymentField = record.payment.paymentField
-          // console.log(`月次ID：${monthlyId}`)
-          // console.log(`recoilBookInfo.bookId：${recoilBookInfo.bookId}`)
           const bookRef = doc(db, 'books', bookId)
-          // console.log(`bookRef参照：${bookRef}`)
           if (monthlyId) {
             const monthlyInfoRef = doc(bookRef, 'monthlyInfo', monthlyId)
             const recordRef = doc(monthlyInfoRef, 'records', recordId)
-
             try {
               await updateDoc(recordRef, {
-                payment: { paymentField: paymentField, paymentValue: paymentValue },
+                payment: { paymentField, paymentValue },
               })
-              // setRecords([...records ])
-              return { ...record, payment: { ...record.payment, paymentField, paymentValue } }
             } catch (error) {
               console.error('Firestoreへのpaymentの更新に失敗しました', error)
             }
@@ -344,33 +327,35 @@ export const Table: React.FC = () => {
         return record
       }),
     )
-
     setRecords(updates)
   }
 
-  const onChangeNotes = async (e: React.ChangeEvent<HTMLInputElement>, FieldName: string, bookId: string) => {
+  const onChangeNotes = (e: React.ChangeEvent<HTMLInputElement>, FieldName: string) => {
+    const newnotesValue = e.target.value
+    setRecords((prevRecords) =>
+      prevRecords.map((record) =>
+        record.notes && record.notes.notesField === FieldName
+          ? { ...record, notes: { ...record.notes, notesValue: newnotesValue } }
+          : record,
+      ),
+    )
+  }
+
+  const onBlurNotes = async (FieldName: string, bookId: string) => {
     const updates = await Promise.all(
       records.map(async (record) => {
-        if (record.notes.notesField === FieldName) {
-          // console.log(`フィールド名：${record.notes.notesField}`)
+        if (record.notes && record.notes.notesField === FieldName) {
           const recordId = record.recordId
-          // console.log(`レコードID：${recordId}`)
-          const notesValue = e.target.value
+          const notesValue = record.notes.notesValue
           const notesField = record.notes.notesField
-          // console.log(`月次ID：${monthlyId}`)
-          // console.log(`recoilBookInfo.bookId：${recoilBookInfo.bookId}`)
           const bookRef = doc(db, 'books', bookId)
-          // console.log(`bookRef参照：${bookRef}`)
           if (monthlyId) {
             const monthlyInfoRef = doc(bookRef, 'monthlyInfo', monthlyId)
             const recordRef = doc(monthlyInfoRef, 'records', recordId)
-
             try {
               await updateDoc(recordRef, {
-                notes: { notesField: notesField, notesValue: notesValue },
+                notes: { notesField, notesValue },
               })
-              // setRecords([...records ])
-              return { ...record, notes: { ...record.notes, notesField, notesValue } }
             } catch (error) {
               console.error('Firestoreへのnotesの更新に失敗しました', error)
             }
@@ -379,7 +364,6 @@ export const Table: React.FC = () => {
         return record
       }),
     )
-
     setRecords(updates)
   }
 
@@ -396,7 +380,8 @@ export const Table: React.FC = () => {
               placeholder="購入日"
               value={record.date?.dateValue}
               name={record.date?.dateField}
-              onChange={(e) => onChangeDate(e, record.date?.dateField, recoilBookInfo.bookId)}
+              onChange={(e) => onChangeDate(e, record.date?.dateField)}
+              onBlur={() => onBlurDate(record.date?.dateField, recoilBookInfo.bookId)}
             />
           </div>
           <div>
@@ -405,7 +390,8 @@ export const Table: React.FC = () => {
               placeholder="店名"
               value={record.storeName?.storeNameValue}
               name={record.storeName?.storeNameField}
-              onChange={(e) => onChangeStoreName(e, record.storeName?.storeNameField, recoilBookInfo.bookId)}
+              onChange={(e) => onChangeStoreName(e, record.storeName?.storeNameField)}
+              onBlur={() => onBlurStoreName(record.storeName?.storeNameField, recoilBookInfo.bookId)}
             />
           </div>
           <div>
@@ -414,13 +400,15 @@ export const Table: React.FC = () => {
               placeholder="金額"
               value={record.price?.priceValue}
               name={record.price?.priceField}
-              onChange={(e) => onChangePrice(e, record.price?.priceField, recoilBookInfo.bookId)}
+              onChange={(e) => onChangePrice(e, record.price?.priceField)}
+              onBlur={() => onBlurPrice(record.price?.priceField, recoilBookInfo.bookId)}
             />
           </div>
           <select
             value={record.payment?.paymentValue}
             name={record.payment?.paymentField}
-            onChange={(e) => onChangePayment(e, record.payment?.paymentField, recoilBookInfo.bookId)}
+            onChange={(e) => onChangePayment(e, record.payment?.paymentField)}
+            onBlur={() => onBlurPayment(record.payment?.paymentField, recoilBookInfo.bookId)}
           >
             <option value="楽天で割り勘">楽天で割り勘</option>
             <option value="楽天のりこ">楽天でのりこ</option>
@@ -432,7 +420,8 @@ export const Table: React.FC = () => {
               placeholder="備考"
               value={record.notes?.notesValue}
               name={record.notes?.notesField}
-              onChange={(e) => onChangeNotes(e, record.notes?.notesField, recoilBookInfo.bookId)}
+              onChange={(e) => onChangeNotes(e, record.notes?.notesField)}
+              onBlur={() => onBlurNotes(record.notes?.notesField, recoilBookInfo.bookId)}
             />
           </div>
 
